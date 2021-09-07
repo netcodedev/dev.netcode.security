@@ -1,3 +1,7 @@
+/**
+ * This module provides certain security features like 
+ * RSA and AES encryption and Identity Management
+ */
 module dev.netcode.security {
 	requires dev.netcode.util;
 	requires lombok;

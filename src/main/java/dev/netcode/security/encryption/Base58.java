@@ -1,5 +1,10 @@
 package dev.netcode.security.encryption;
 
+/**
+ * Base58 is similar to Base64 but uses only 58 different characters
+ * to encode the message.
+ * Base58 is used for example to encode Bitcoin wallet addresses.
+ */
 public class Base58 {
 	
 	private static final char[] ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -17,6 +22,11 @@ public class Base58 {
 		}
 	}
 	
+	/**
+	 * Encodes a byte array input to Base58
+	 * @param input byte array to be encoded
+	 * @return Base58 encoded data as String
+	 */
 	public static String encode(byte[] input) {
 		if (input.length == 0) {
 			return "";
@@ -52,6 +62,11 @@ public class Base58 {
 		return new String(output);
 	}
 
+	/**
+	 * Decodes a Base58 encoded input to byte array
+	 * @param input String to be decoded
+	 * @return decoded byte array
+	 */
 	public static byte[] decode(String input) {
 		if (input.length() == 0) {
 			return new byte[0];
@@ -96,6 +111,12 @@ public class Base58 {
 		return copyOfRange(temp, j - zeroCount, temp.length);
 	}
 
+	/**
+	 * Gets the remainer when applying division by {@link BASE_58}
+	 * @param number input array
+	 * @param startAt index
+	 * @return the remainer when applying division by {@link BASE_58}
+	 */
 	private static byte divmod58(byte[] number, int startAt) {
 		int remainder = 0;
 		for (int i = startAt; i < number.length; i++) {
@@ -110,6 +131,12 @@ public class Base58 {
 		return (byte) remainder;
 	}
 
+	/**
+	 * Gets the remainer when applying division by {@link BASE_256}
+	 * @param number input array
+	 * @param startAt index
+	 * @return the remainer when applying division by {@link BASE_256}
+	 */
 	private static byte divmod256(byte[] number58, int startAt) {
 		int remainder = 0;
 		for (int i = startAt; i < number58.length; i++) {
@@ -124,6 +151,13 @@ public class Base58 {
 		return (byte) remainder;
 	}
 
+	/**
+	 * Copies a range of bytes inside given byte array to new byte array
+	 * @param source byte array from which the range should be taken
+	 * @param from start index
+	 * @param to end index
+	 * @return elements in the given range of the source as byte array
+	 */
 	private static byte[] copyOfRange(byte[] source, int from, int to) {
 		byte[] range = new byte[to - from];
 		System.arraycopy(source, from, range, 0, range.length);

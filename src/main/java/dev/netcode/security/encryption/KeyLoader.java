@@ -9,8 +9,17 @@ import java.util.Base64;
 
 import dev.netcode.util.Result;
 
+/**
+ * This class simplifies the process of loading Keys from files
+ */
 public class KeyLoader {
 
+	/**
+	 * Loads a Base64 encoded RSA public key from file
+	 * @param file Path of the file containing the Base64 encoded public key
+	 * @return the public key
+	 * @throws IOException if the file can not be read
+	 */
 	public static PublicKey loadPublicKeyFromFile(Path file) throws IOException {
 		String publicContent = new String(Files.readAllBytes(file));
 		publicContent = publicContent.replace("\n", "").replace("\r", "");
@@ -18,6 +27,13 @@ public class KeyLoader {
 		return RSAEncrypter.generatePublicKeyFromString(Base64.getDecoder().decode(publicContent));
 	}
 	
+
+	/**
+	 * Loads a Base64 encoded RSA private key from file
+	 * @param file Path of the file containing the Base64 encoded private key
+	 * @return the private key
+	 * @throws IOException if the file can not be read
+	 */
 	public static PrivateKey loadPrivateKeyFromFile(Path file) throws IOException {
 		String privateContent = new String(Files.readAllBytes(file));
 		privateContent = privateContent.replace("\n", "").replace("\r", "");
@@ -25,6 +41,14 @@ public class KeyLoader {
 		return RSAEncrypter.generatePrivateKeyFromString(Base64.getDecoder().decode(privateContent));
 	}
 	
+
+	/**
+	 * Loads a Base64 encoded RSA public key from an encrypted file
+	 * @param file Path of the file containing the Base64 encoded public key
+	 * @param password used to decrypt the file
+	 * @return the public key
+	 * @throws IOException if the file can not be read
+	 */
 	public static Result<PublicKey> loadPublicKeyFromEncryptedFile(Path file, String password) throws IOException {
 		String publicContent = new String(Files.readAllBytes(file));
 		var result = AESEncrypter.decrypt(publicContent, password);
@@ -36,6 +60,13 @@ public class KeyLoader {
 		return new Result<PublicKey>(RSAEncrypter.generatePublicKeyFromString(Base64.getDecoder().decode(publicContent)), null);
 	}
 	
+	/**
+	 * Loads a Base64 encoded RSA private key from an encrypted file
+	 * @param file Path of the file containing the Base64 encoded private key
+	 * @param password used to decrypt the file
+	 * @return the private key
+	 * @throws IOException if the file can not be read
+	 */
 	public static Result<PrivateKey> loadPrivateKeyFromEncryptedFile(Path file, String password) throws IOException {
 		String privateContent = new String(Files.readAllBytes(file));
 		var result = AESEncrypter.decrypt(privateContent, password);

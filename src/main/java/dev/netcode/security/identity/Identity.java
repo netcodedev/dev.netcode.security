@@ -1,6 +1,7 @@
 package dev.netcode.security.identity;
 
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +21,16 @@ import dev.netcode.util.StringUtils;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Identity instances are meant to contain data about a person, institution
+ * or service which is signed by a trusted authority.
+ * Identities can also be self-signed which does not provide any layer of trust
+ * if not used by a trusted authority. This means trusted authorities must obviously
+ * sign their identities by themselves.
+ * An Identity can be used to encrypt, decrypt and sign data
+ * The class is designed to be safely serializable so instances can easily be stored on disk.
+ * The private parts should be password encrypted.
+ */
 public class Identity {
 
 	@Getter private String possessor;
@@ -30,29 +41,45 @@ public class Identity {
 	@Getter @Setter private Signature signature;
 	@Getter private transient KeyPair keyPair;
 	
+	/**
+	 * Creates an identity from the given data
+	 * @param possessor name of the person, institution or service that possesses the identity
+	 * @param data key-value pairs of data containing information about the possessor
+	 * @param password which should be used to encrypt the private parts
+	 */
 	public Identity(String possessor, HashMap<String, String> data, String password) {
 		this.possessor = possessor;
 		this.data = data;
 		this.keyPair = RSAEncrypter.generateKeyPair(4096);
-		this.publicKey = RSAEncrypter.getStringFromKey(keyPair.getPublic());
-		this.privateKey = AESEncrypter.encrypt(RSAEncrypter.getStringFromKey(keyPair.getPrivate()), password).get();
-		this.identityID = RSAEncrypter.getFingerprintFromPublicKeyString(RSAEncrypter.getStringFromKey(keyPair.getPublic()));
+		this.publicKey = RSAEncrypter.keyToString(keyPair.getPublic());
+		this.privateKey = AESEncrypter.encrypt(RSAEncrypter.keyToString(keyPair.getPrivate()), password).get();
+		this.identityID = RSAEncrypter.getFingerprint(keyPair.getPublic());
 	}
 	
+	/**
+	 * Loads an Identity from a file
+	 * @param path of the identity file
+	 * @return identity instance
+	 */
 	public static Identity load(Path path) {
 		try {
 			if(!path.toFile().exists()) {
-				System.err.println("File not found!");
-				return null;
+				throw new FileNotFoundException("File \""+path.toFile().getAbsolutePath()+"\" doesn't exist");
 			}
 			String fileContent = new String(Files.readAllBytes(path));
 			return new Gson().fromJson(fileContent, Identity.class);
 		} catch (IOException e) {
-			System.err.println("Failed to load Identity from file: "+e.getMessage());
-			return null;
+			throw new RuntimeException("Failed to load Identity from file: "+e.getMessage());
 		}
 	}
 	
+	/**
+	 * Saves the Identity to file at a given path.<br>
+	 * Inexistent files will be created.
+	 * Existent files will be overridden.
+	 * @param path of the file to save the Identity to
+	 * @return true if the process was successful
+	 */
 	public boolean save(Path path) {
 		try {
 			Gson gsonBuilder = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
@@ -62,11 +89,15 @@ public class Identity {
 			fileWriter.close();
 			return true;
 		} catch(Exception e) {
-			System.err.println("Failed to save Identity to file: "+e.getMessage());
-			return false;
+			throw new RuntimeException("Failed to save Identity to file: "+e.getMessage());
 		}
 	}
 	
+	/**
+	 * Unlocks a loaded identity which makes it possible to use it
+	 * @param password to unlock the identity with
+	 * @return true if the unlocking process was successful
+	 */
 	public boolean unlock(String password) {
 		var result = AESEncrypter.decrypt(this.privateKey, password);
 		if(result.wasSuccessful()) {
@@ -79,6 +110,12 @@ public class Identity {
 		return false;
 	}
 	
+	/**
+	 * Checks if the {@link Signature} of the identity is valid 
+	 * using a given public key.
+	 * @param publicKey to test the signature against
+	 * @return true if the signature is valid, false otherwise
+	 */
 	public boolean isValid(PublicKey publicKey) {
 		if(signature == null) {
 			return false;
@@ -86,19 +123,34 @@ public class Identity {
 		return signature.isValid(publicKey, this);
 	}
 	
+	/**
+	 * @return true if the identity is unlocked and usable
+	 */
 	public boolean isUnlocked() {
 		return this.keyPair!=null;
 	}
 	
+	/**
+	 * Hashes the information contained in the identity using SHA-256
+	 * @return the hashed information
+	 */
 	public String getHash() {
 		return StringUtils.applySha256(identityID+possessor+new Gson().toJson(data));
 	}
 	
+	/**
+	 * Generates a String representation of this identity containing
+	 * the data that is secure to be sent.
+	 */
 	@Override
 	public String toString() {
 		return new Gson().toJson(this);
 	}
 	
+	/**
+	 * Like {@link #toString()} but idents certain parts to make it better readable
+	 * @return idented String representation
+	 */
 	public String toIndentedString() {
 		return new GsonBuilder().setPrettyPrinting().create().toJson(this);
 	}

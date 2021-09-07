@@ -11,8 +11,18 @@ import javax.crypto.spec.SecretKeySpec;
 
 import dev.netcode.util.Result;
 
+/**
+ * This utility class can be used to encrypt and decrypt data using
+ * the AES encryption algorithm. 
+ */
 public class AESEncrypter {
 
+	/**
+	 * Generates a {@link SecretKeySpec} from a password to be used for
+	 * AES encryption
+	 * @param password to generate the {@link SecretKeySpec} for
+	 * @return the generated {@link SecretKeySpec}
+	 */
 	public static SecretKeySpec getKey(String password) {
 		MessageDigest sha = null;
 		SecretKeySpec privateKey = null;
@@ -28,6 +38,14 @@ public class AESEncrypter {
 		return privateKey;
 	}
 	
+	/**
+	 * Encrypts a message using a given password and returns it as
+	 * Base64 encrypted String.
+	 * For encryption the cipher instance of <code>AES/ECB/PKCS5PADDING</code> is used
+	 * @param message to be encrypted
+	 * @param password to be used to encrypt the message
+	 * @return encrypted message wrapped inside {@link Result}
+	 */
 	public static Result<String> encrypt(String message, String password){
 		String encrypted = null;
 		try {
@@ -41,6 +59,14 @@ public class AESEncrypter {
 		return new Result<String>(encrypted, null);
 	}
 	
+	/**
+	 * Decrypts a message using a given password and returns it as String.
+	 * It is assumed that the message is encrypted using <code>AES/ECB/PKCS5PADDING</code>
+	 * and transformed to Base64.
+	 * @param message to be decrypted
+	 * @param password to be used to decrypt the message
+	 * @return decrypted message wrapped inside {@link Result}
+	 */
 	public static Result<String> decrypt(String message, String password) {
 		String decrypted = null;
 		try {

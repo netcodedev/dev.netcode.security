@@ -20,8 +20,19 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 
+/**
+ * This class simplifies the process of RSA Encrypting data.
+ * Using it you can generate RSA Keys and encrypt/decrypt data.
+ */
 public class RSAEncrypter {
 
+	/**
+	 * Generates a {@link KeyPair} with given size.
+	 * The higher the size, the more secure the key can be considered.
+	 * Size must be divisible by 2.
+	 * @param size of the keys to be generated
+	 * @return the generated {@link KeyPair}
+	 */
 	public static KeyPair generateKeyPair(int size) {
 		KeyPairGenerator keygen = null;
 		try {
@@ -33,42 +44,38 @@ public class RSAEncrypter {
 		return keygen.generateKeyPair();
 	}
 	
-	public static String decrypt(byte[] cipher, PrivateKey pk) {
+	/**
+	 * Decrypts RSA encrypted data
+	 * @param cipher data to be decrypted
+	 * @param privateKey to be used to decrypt the data
+	 * @return decrypted data as UTF-8 encoded String
+	 */
+	public static String decrypt(byte[] cipher, PrivateKey privateKey) {
 		byte[] dec = {};
 		Cipher c;
 		try {
 			c = Cipher.getInstance("RSA");
-			c.init(Cipher.DECRYPT_MODE, pk);
+			c.init(Cipher.DECRYPT_MODE, privateKey);
 			dec = c.doFinal(cipher);
 		} catch(Exception e) {
 			System.out.println("Error while decrypting: " + e.getMessage());
 			e.printStackTrace();
 		}
-		return bytes2String(dec);
+		return new String(dec, StandardCharsets.UTF_8);
 	}
 	
-	public static String decryptBase64Array(String[] parts, PrivateKey pk) {
-		String decrypted = "";
-		
-		Cipher c;
-		try {
-			c = Cipher.getInstance("RSA");
-			c.init(Cipher.DECRYPT_MODE, pk);
-			for(String part : parts) {
-				decrypted += bytes2String(c.doFinal(Base64.getDecoder().decode(part)));
-			}
-		} catch(Exception e) {
-			System.out.println("Error while decrypting: " + e.getMessage());
-		}
-		return decrypted;
-	}
-	
-	public static byte[] encrypt(String message, PublicKey pk) {
+	/**
+	 * Encrypts a message using a RSA {@link PublicKey}
+	 * @param message to be encrypted
+	 * @param publicKey ised to encrypt the data
+	 * @return byte array of encrypted data
+	 */
+	public static byte[] encrypt(String message, PublicKey publicKey) {
 		Cipher cipher = null;
 		byte[] encrypted = null;
 		try {
 			cipher = Cipher.getInstance("RSA");
-			cipher.init(Cipher.ENCRYPT_MODE, pk);
+			cipher.init(Cipher.ENCRYPT_MODE, publicKey);
 		} catch (Exception e) {
 			System.out.println("Error while encrypting: " + e.getMessage());
 		}
@@ -80,6 +87,13 @@ public class RSAEncrypter {
 		return encrypted;
 	}
 	
+	/**
+	 * Generates a RSA signature for a given input. The signature can
+	 * be used to make sure a message comes from a specific sender
+	 * @param privateKey used to sign the data
+	 * @param input data to be signed
+	 * @return Signature as String
+	 */
 	public static String sign(PrivateKey privateKey, String input) {
 		try {
 			Signature privateSignature = Signature.getInstance("SHA256withRSA");
@@ -94,6 +108,14 @@ public class RSAEncrypter {
 		}
 	}
 	
+	/**
+	 * Verifies that a given signature matches given data and a given public key.
+	 * This process ensures that the data really comes from the sender 
+	 * @param publicKey of the sender
+	 * @param data original data 
+	 * @param signature to be tested
+	 * @return true if the signature matches the data and public key
+	 */
 	public static boolean verifySignature(PublicKey publicKey, String data, String signature) {
 		try {
 			Signature publicSignature = Signature.getInstance("SHA256withRSA");
@@ -108,19 +130,11 @@ public class RSAEncrypter {
 		}
 	}
 	
-	public static PublicKey generatePublicKeyFromString(String key){
-	    try{
-	        byte[] byteKey = hexStringToByteArray(key);
-	        X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(byteKey);
-	        KeyFactory kf = KeyFactory.getInstance("RSA");
-
-	        return kf.generatePublic(X509publicKey);
-	    } catch(Exception e){
-	        e.printStackTrace();
-	        return null;
-	    }
-	}
-	
+	/**
+	 * Generates a public key from byte array
+	 * @param key byte array
+	 * @return public key
+	 */
 	public static PublicKey generatePublicKeyFromString(byte[] key){
 	    try{
 	        X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(key);
@@ -133,19 +147,11 @@ public class RSAEncrypter {
 	    }
 	}
 	
-	public static PrivateKey generatePrivateKeyFromString(String key){
-	    try{
-	        byte[] byteKey = key.getBytes();
-	        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(byteKey);
-	        KeyFactory kf = KeyFactory.getInstance("RSA");
-
-	        return kf.generatePrivate(pkcs8EncodedKeySpec);
-	    } catch(Exception e){
-	        e.printStackTrace();
-	        return null;
-	    }
-	}
-	
+	/**
+	 * Generates a private key from byte array
+	 * @param key byte array
+	 * @return private key
+	 */
 	public static PrivateKey generatePrivateKeyFromString(byte[] key){
 	    try{
 	        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(key);
@@ -158,17 +164,29 @@ public class RSAEncrypter {
 	    }
 	}
 	
-	public static String getStringFromKey(Key key) {
+	/**
+	 * Encodes a Key to a String representation.
+	 * The key will be encoded to Base64
+	 * @param key to transform
+	 * @return String representation
+	 */
+	public static String keyToString(Key key) {
 		if(key == null) {
 			return "null";
 		}
 		return Base64.getEncoder().encodeToString(key.getEncoded());
 	}
 	
-	public static String getFingerprintFromPublicKeyString(String key) {
+	/**
+	 * Generates a fingerprint string of a public key.
+	 * The key has to be X509 compatible.
+	 * The fingerprint will be SHA-1 representation of the key
+	 * @param key to get the fingerprint of
+	 * @return the fingerprint
+	 */
+	public static String getFingerprint(PublicKey key) {
 		try {
-			byte[] byteKey = hexStringToByteArray(key);
-	        X509EncodedKeySpec pubkeyspec = new X509EncodedKeySpec(byteKey);
+	        X509EncodedKeySpec pubkeyspec = new X509EncodedKeySpec(key.getEncoded());
 	        return Base58.encode(MessageDigest.getInstance("SHA-1").digest(pubkeyspec.getEncoded()));
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -176,33 +194,4 @@ public class RSAEncrypter {
 		}
 	}
 	
-	public static String bytes2String(byte[] bytes) {
-		StringBuilder string = new StringBuilder();
-		for (byte b : bytes) {
-			String hexString = Integer.toHexString(0x00FF & b);
-			string.append(hexString.length() == 1 ? "0" + hexString : hexString);
-		}
-		return string.toString();
-	}
-	
-	public static byte[] hexStringToByteArray(String s) {
-	    int len = s.length();
-	    byte[] data = new byte[len / 2];
-	    for (int i = 0; i < len; i += 2) {
-	        data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
-	                             + Character.digit(s.charAt(i+1), 16));
-	    }
-	    return data;
-	}
-	
-	public static String hexToString(String hexStr) {
-	    StringBuilder output = new StringBuilder("");
-	     
-	    for (int i = 0; i < hexStr.length(); i += 2) {
-	        String str = hexStr.substring(i, i + 2);
-	        output.append((char) Integer.parseInt(str, 16));
-	    }
-	     
-	    return output.toString();
-	}
 }
