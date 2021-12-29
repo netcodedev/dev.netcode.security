@@ -10,4 +10,6 @@ module dev.netcode.security {
 	
 	exports dev.netcode.security.encryption;
 	exports dev.netcode.security.identity;
+	
+	opens dev.netcode.security.identity to com.google.gson;
 }

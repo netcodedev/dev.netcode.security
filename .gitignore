@@ -28,3 +28,4 @@ gradle.properties
 build/
 bin/
 secring.gpg
+/.gradle/
