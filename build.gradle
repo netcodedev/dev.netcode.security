@@ -44,7 +44,7 @@ publishing {
                     url = 'https://github.com/N3TC0D3/dev.netcode.security'
                 }
             }
-            
+
         }
     }
     repositories {
@@ -79,20 +79,20 @@ repositories {
 dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
-    
+
     // netcode util
-    implementation 'dev.netcode:util:0.0.3'
-    
+    implementation 'dev.netcode:util:0.0.4'
+
     // JSON
     implementation 'org.json:json:20210307'
-    
+
     // GSON
     implementation 'com.google.code.gson:gson:2.8.8'
-    
+
     // LOMBOK
     compileOnly 'org.projectlombok:lombok:1.18.20'
 	annotationProcessor 'org.projectlombok:lombok:1.18.20'
-	
+
 	testCompileOnly 'org.projectlombok:lombok:1.18.20'
 	testAnnotationProcessor 'org.projectlombok:lombok:1.18.20'
 }
