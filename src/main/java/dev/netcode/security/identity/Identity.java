@@ -96,15 +96,19 @@ public class Identity {
 	/**
 	 * Unlocks a loaded identity which makes it possible to use it
 	 * @param password to unlock the identity with
-	 * @return true if the unlocking process was successful
+	 * @return true if the unlocking process was successful, false otherwise
 	 */
 	public boolean unlock(String password) {
 		var result = AESEncrypter.decrypt(this.privateKey, password);
 		if(result.wasSuccessful()) {
-			this.keyPair = new KeyPair(
-					RSAEncrypter.generatePublicKeyFromString(Base64.getDecoder().decode(this.publicKey)),
-					RSAEncrypter.generatePrivateKeyFromString(Base64.getDecoder().decode(result.get()))
-					);
+			try {
+				this.keyPair = new KeyPair(
+						RSAEncrypter.generatePublicKeyFromString(Base64.getDecoder().decode(this.publicKey)),
+						RSAEncrypter.generatePrivateKeyFromString(Base64.getDecoder().decode(result.get()))
+						);
+			} catch(Exception e) {
+				return false;
+			}
 			return true;
 		}
 		return false;

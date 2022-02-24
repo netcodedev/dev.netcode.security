@@ -1,7 +1,10 @@
 package dev.netcode.security.identity;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SignatureException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -54,8 +57,11 @@ public class Signature {
 	/**
 	 * Signs this Signature which makes it valid.
 	 * @param privateKey used to sign the signature
+	 * @throws SignatureException 
+	 * @throws NoSuchAlgorithmException 
+	 * @throws InvalidKeyException 
 	 */
-	public void sign(PrivateKey privateKey) {
+	public void sign(PrivateKey privateKey) throws InvalidKeyException, NoSuchAlgorithmException, SignatureException {
 		signature = RSAEncrypter.sign(privateKey, getVerifiableDataString());
 	}
 	
