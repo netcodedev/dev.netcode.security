@@ -1,6 +1,6 @@
 package dev.netcode.security.encryption;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -26,15 +26,16 @@ public class AESEncrypter {
 	public static SecretKeySpec getKey(String password) {
 		MessageDigest sha = null;
 		SecretKeySpec privateKey = null;
+		byte[] key = password.getBytes(StandardCharsets.UTF_8);
 		try {
-			byte[] key = password.getBytes("UTF-8");
 			sha = MessageDigest.getInstance("SHA-256");
-			key = sha.digest(key);
-			key = Arrays.copyOf(key, 16);
-			privateKey = new SecretKeySpec(key, "AES");
-		} catch(NoSuchAlgorithmException | UnsupportedEncodingException e) {
+		} catch (NoSuchAlgorithmException e) {
+			// SHA-256 exists so this should never be thrown
 			e.printStackTrace();
-		} 
+		}
+		key = sha.digest(key);
+		key = Arrays.copyOf(key, 16);
+		privateKey = new SecretKeySpec(key, "AES");
 		return privateKey;
 	}
 	
