@@ -84,7 +84,7 @@ dependencies {
     implementation 'dev.netcode:util:0.0.4'
 
     // JSON
-    implementation 'org.json:json:20210307'
+    implementation 'org.json:json:20220320'
 
     // GSON
     implementation 'com.google.code.gson:gson:2.8.8'
