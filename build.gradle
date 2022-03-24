@@ -90,7 +90,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.8'
 
     // LOMBOK
-    compileOnly 'org.projectlombok:lombok:1.18.20'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
 	annotationProcessor 'org.projectlombok:lombok:1.18.20'
 
 	testCompileOnly 'org.projectlombok:lombok:1.18.20'
