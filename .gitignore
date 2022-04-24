@@ -29,3 +29,4 @@ build/
 bin/
 secring.gpg
 /.gradle/
+*.key
