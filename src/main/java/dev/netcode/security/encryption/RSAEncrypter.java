@@ -1,6 +1,5 @@
 package dev.netcode.security.encryption;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.Key;
