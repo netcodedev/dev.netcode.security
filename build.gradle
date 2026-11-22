@@ -88,7 +88,7 @@ dependencies {
     implementation 'org.json:json:20260814'
 
     // GSON
-    implementation 'com.google.code.gson:gson:2.14.0'
+    implementation 'com.google.code.gson:gson:2.15.0'
 
     // LOMBOK
     compileOnly 'org.projectlombok:lombok:1.18.48'
